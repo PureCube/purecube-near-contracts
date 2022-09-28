@@ -1,0 +1,17 @@
+{
+    "name": "pureblock-near-contracts",
+    "version": "0.1.0",
+    "description": "Smart contracts for PureBlock platform at Near Protocol",
+    "author": "PureBlock",
+    "license": "GPL-3.0-or-later",
+    "scripts": {
+        "build": "cd runner && bash build.sh && cd .. && ls && cd marketplace && bash build.sh && cd ..",
+        "test": "npm run test:unit && npm run test:integration",
+            "test:unit": "npm run test:unit:nft && npm run test:unit:market",
+                "test:unit:nft": "cd runner && cargo test -- --nocapture --color=always && cd ..",
+                "test:unit:market": "cd marketplace && cargo test -- --nocapture --color=always && cd ..",
+            "test:integration": "npm run test:integration:ts && npm run test:integration:rs",
+                "test:integration:ts": "cd integration-tests/ts && npm i && npm run test",
+                "test:integration:rs": "cd integration-tests/rs && cargo run --example integration-tests"
+    }
+}
