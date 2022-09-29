@@ -15,12 +15,16 @@ test.beforeEach(async (t) => {
   const worker = await Worker.init();
   const root = worker.rootAccount;
 
+  const treasury = await root.createSubAccount("treasury", {
+    initialBalance: NEAR.parse("1 N").toJSON(),
+  });
+
   const nftContractLocation = path.join(__dirname, "../../../out/main.wasm");
   const nft_contract = await root.devDeploy(
     nftContractLocation,
     {
       method: "new_default_meta",
-      args: { owner_id: root },
+      args: { owner_id: root, treasury_id: treasury, },
       initialBalance: NEAR.parse("100 N").toJSON()
     }
   );
@@ -48,7 +52,7 @@ test.beforeEach(async (t) => {
   });
 
   t.context.worker = worker;
-  t.context.accounts = { root, nft_contract, market_contract, alice, bob, charlie };
+  t.context.accounts = { root, nft_contract, market_contract, alice, bob, charlie, treasury, };
 });
 
 test.afterEach.always(async (t) => {

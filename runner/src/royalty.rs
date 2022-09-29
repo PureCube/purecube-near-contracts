@@ -34,8 +34,8 @@ impl NonFungibleTokenCore for Contract {
         let mut payout_object = Payout {
             payout: HashMap::new()
         };
-        //get the royalty object from token
-		let royalty = token.royalty;
+        //get the royalty object
+		let royalty = &self.perpetual_royalties;
 
         //make sure we're not paying out to too many people (GAS limits this)
 		assert!(royalty.len() as u32 <= max_len_payout, "Market cannot payout to that many receivers");
@@ -99,8 +99,8 @@ impl NonFungibleTokenCore for Contract {
         let mut payout_object = Payout {
             payout: HashMap::new()
         };
-        //get the royalty object from token
-		let royalty = previous_token.royalty;
+        //get the royalty object
+		let royalty = self.perpetual_royalties.clone();
 
         //make sure we're not paying out to too many people (GAS limits this)
 		assert!(royalty.len() as u32 <= max_len_payout, "Market cannot payout to that many receivers");

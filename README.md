@@ -2,14 +2,22 @@
 
 Smart contracts for PureBlock platform at Near Protocol.
 
-## Near Runner NFT
+## Runner
+
+Near Runner play-to-earn in-game NFT. 
 
 ### Requirements
 
 * [x] Follow all [NonFungibleToken standards](https://nomicon.io/Standards/Tokens/NonFungibleToken/)
-* [ ] Anyone can mint for `min_price` between `mint_start` and `mint_end` timestamp milliseconds until `max_supply` is reached
-* [ ] `treasury_id` can mint until `max_supply` is reached
-* [ ] Send trade fee to royalty receivers and `mint_price` to `treasury_id`
+* [x] Initialize with
+  * `owner_id` contract owner account
+  * `treasury_id` receives funds from mint and can mint until `max_supply` is reached
+  * `max_supply` of tokens
+  * `base_uri` endpoint of centralized gateway which stores media, off-chain attributes and uses revealing system
+  * `mint_price` of new token
+  * `mint_start` timestamp milliseconds when anyone can mint new token by `mint_price`
+  * `mint_end` timestamp milliseconds when anyone cant mint
+  * `perpetual_royalties` up to 6 trade fee receivers
 * [ ] Pass [Paras](https://paras.id) [integration requirements](https://docs.paras.id/nft-smart-contract-integration)
 
 
@@ -17,7 +25,7 @@ Smart contracts for PureBlock platform at Near Protocol.
 
 Simple NFT marketplace contract
 
-## Quick-Start
+## Develop Quick-Start
 
 ### Explore Near NFT contracts
 * *[near-examples](https://github.com/near-examples)* **[NFT](https://github.com/near-examples/NFT)** built on *[near-contract-standards](https://github.com/near/near-sdk-rs/tree/master/near-contract-standards)* :: *[non_fungible_token](https://github.com/near/near-sdk-rs/tree/master/near-contract-standards/src/non_fungible_token)* implementation and [Master NFTs on NEAR](https://docs.near.org/tutorials/nfts/introduction#) *[nft-tutorial](https://github.com/near-examples/nft-tutorial)* **[nft-contract](https://github.com/near-examples/nft-tutorial/tree/main/nft-contract)**, **[nft-series](https://github.com/near-examples/nft-tutorial/tree/main/nft-series)** and **[market-contract](https://github.com/near-examples/nft-tutorial/tree/main/market-contract)** built from scratch without it. Last option is based for our NFT contracts.

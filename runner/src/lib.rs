@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
-use near_sdk::json_types::{Base64VecU8, U128};
+use near_sdk::json_types::{Base64VecU8, U128, U64};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
     env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue,
@@ -46,6 +46,21 @@ pub struct Contract {
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
+
+    //treasury address
+    pub treasury_id: AccountId,
+
+    //price of mint new token
+    pub mint_price: U128,
+
+    //max total supply
+    pub max_supply: U128,
+
+    pub mint_start: U64,
+
+    pub mint_end: U64,
+
+    pub perpetual_royalties: HashMap<AccountId, u32>,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -69,7 +84,16 @@ impl Contract {
         user doesn't have to manually type metadata.
     */
     #[init]
-    pub fn new_default_meta(owner_id: AccountId) -> Self {
+    pub fn new_default_meta(
+        owner_id: AccountId,
+        treasury_id: AccountId,
+        max_supply: U128,
+        base_uri: String,
+        mint_price: U128,
+        mint_start: U64,
+        mint_end: U64,
+        perpetual_royalties: Option<HashMap<AccountId, u32>>
+      ) -> Self {
         //calls the other function "new: with some default metadata and the owner_id passed in 
         Self::new(
             owner_id,
@@ -78,10 +102,16 @@ impl Contract {
                 name: "Near Runner".to_string(),
                 symbol: "RUNNER".to_string(),
                 icon: None,
-                base_uri: Some("https://api.domain/".to_string()),
+                base_uri: Some(base_uri.to_string()),
                 reference: None,
                 reference_hash: None,
             },
+            treasury_id,
+            max_supply,
+            mint_price,
+            mint_start,
+            mint_end,
+            perpetual_royalties,
         )
     }
 
@@ -91,7 +121,30 @@ impl Contract {
         the owner_id. 
     */
     #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
+    pub fn new(
+        owner_id: AccountId,
+        metadata: NFTContractMetadata,
+        treasury_id: AccountId,
+        max_supply: U128,
+        mint_price: U128,
+        mint_start: U64,
+        mint_end: U64,
+        perpetual_royalties: Option<HashMap<AccountId, u32>>
+    ) -> Self {
+            // create a royalty map to store in the contract
+            let mut royalty = HashMap::new();
+
+            // if perpetual royalties were passed into the function:
+            if let Some(perpetual_royalties) = perpetual_royalties {
+                //make sure that the length of the perpetual royalties is below 7 since we won't have enough GAS to pay out that many people
+                assert!(perpetual_royalties.len() < 7, "Cannot add more than 6 perpetual royalty amounts");
+
+                //iterate through the perpetual royalties and insert the account and amount in the royalty map
+                for (account, amount) in perpetual_royalties {
+                    royalty.insert(account, amount);
+                }
+            }
+
         //create a variable of type Self with all the fields initialized. 
         let this = Self {
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
@@ -106,6 +159,12 @@ impl Contract {
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),
             ),
+            treasury_id,
+            mint_price,
+            mint_start,
+            mint_end,
+            max_supply,
+            perpetual_royalties: royalty,
         };
 
         //return the Contract object

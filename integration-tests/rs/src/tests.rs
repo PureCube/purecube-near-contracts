@@ -39,11 +39,17 @@ async fn main() -> anyhow::Result<()> {
         .transact()
         .await?
         .into_result()?;
+    let treasury = owner
+            .create_subaccount(&worker, "treasury")
+//             .initial_balance(parse_near!("30 N"))
+            .transact()
+            .await?
+            .into_result()?;
 
     // Initialize contracts
     nft_contract
         .call(&worker, "new_default_meta")
-        .args_json(serde_json::json!({"owner_id": owner.id()}))?
+        .args_json(serde_json::json!({"owner_id": owner.id(), "treasury_id": treasury.id()}))?
         .transact()
         .await?;
     market_contract

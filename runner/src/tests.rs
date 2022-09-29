@@ -12,6 +12,12 @@ use std::collections::HashMap;
 
 const MINT_STORAGE_COST: u128 = 100_000_000_000_000_000_000_000;
 const MIN_REQUIRED_APPROVAL_YOCTO: u128 = 170000000000000000000;
+const DEFAULT_BASE_URI: &str = "https://gateway.pureblock.io/runner-testnet/";
+const MINT_PRICE_NEAR: u128 = 5;
+const MINT_PRICE: U128 = U128(MINT_PRICE_NEAR * 1_000_000_000_000_000_000_000_000);
+const MINT_START: U64 = U64( 1600000000000 );
+const MINT_END: U64 = U64( 1690000000000 ); // Sat Jul 22 2023 04:26:40
+const MAX_SUPPLY: U128 = U128(10);
 
 fn get_context(predecessor: AccountId) -> VMContextBuilder {
     let mut builder = VMContextBuilder::new();
@@ -21,9 +27,9 @@ fn get_context(predecessor: AccountId) -> VMContextBuilder {
 
 fn sample_token_metadata() -> TokenMetadata {
     TokenMetadata {
-        title: Some("Olympus Mons".into()),
-        description: Some("The tallest mountain in the charted solar system".into()),
-        media: None,
+        title: Some("A-Runner #0".into()),
+        description: Some("Near Runner play-to-earn game NFT".into()),
+        media: Some("img/0.jpg".into()),
         media_hash: None,
         copies: Some(1u64),
         issued_at: None,
@@ -31,7 +37,7 @@ fn sample_token_metadata() -> TokenMetadata {
         starts_at: None,
         updated_at: None,
         extra: None,
-        reference: None,
+        reference: Some("data/0.json".into()),
         reference_hash: None,
     }
 }
@@ -48,7 +54,7 @@ fn test_default() {
 fn test_new_account_contract() {
     let mut context = get_context(accounts(1));
     testing_env!(context.build());
-    let contract = Contract::new_default_meta(accounts(1).into());
+    let contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
     testing_env!(context.is_view(true).build());
     let contract_nft_tokens = contract.nft_tokens(Some(U128(0)), None);
     assert_eq!(contract_nft_tokens.len(), 0);
@@ -58,15 +64,16 @@ fn test_new_account_contract() {
 fn test_mint_nft() {
     let mut context = get_context(accounts(0));
     testing_env!(context.build());
-    let mut contract = Contract::new_default_meta(accounts(0).into());
+    let mut contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
     testing_env!(context
         .storage_usage(env::storage_usage())
-        .attached_deposit(MINT_STORAGE_COST)
+        .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
+        .block_timestamp(1680000000000)
         .build());
-    let token_metadata: TokenMetadata = sample_token_metadata();
+//     let token_metadata: TokenMetadata = sample_token_metadata();
     let token_id = "0".to_string();
-    contract.nft_mint(token_id.clone(), token_metadata, accounts(0), None);
+    contract.nft_mint(accounts(0));
     let contract_nft_tokens = contract.nft_tokens(Some(U128(0)), None);
     assert_eq!(contract_nft_tokens.len(), 1);
 
@@ -90,16 +97,17 @@ fn test_mint_nft() {
 #[test]
 fn test_internal_transfer() {
     let mut context = get_context(accounts(0));
-    testing_env!(context.build());
-    let mut contract = Contract::new_default_meta(accounts(0).into());
+    testing_env!(context.block_timestamp(1680000000000).build());
+    let mut contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
 
     testing_env!(context
         .storage_usage(env::storage_usage())
-        .attached_deposit(MINT_STORAGE_COST)
+        .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
+        .block_timestamp(1680000000000)
         .build());
     let token_id = "0".to_string();
-    contract.nft_mint(token_id.clone(), sample_token_metadata(), accounts(0), None);
+    contract.nft_mint(accounts(0));
 
     testing_env!(context
         .storage_usage(env::storage_usage())
@@ -143,15 +151,16 @@ fn test_internal_transfer() {
 fn test_nft_approve() {
     let mut context = get_context(accounts(0));
     testing_env!(context.build());
-    let mut contract = Contract::new_default_meta(accounts(0).into());
+    let mut contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
 
     testing_env!(context
         .storage_usage(env::storage_usage())
-        .attached_deposit(MINT_STORAGE_COST)
+        .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
+        .block_timestamp(1680000000000)
         .build());
     let token_id = "0".to_string();
-    contract.nft_mint(token_id.clone(), sample_token_metadata(), accounts(0), None);
+    contract.nft_mint(accounts(0));
 
     testing_env!(context
         .storage_usage(env::storage_usage())
@@ -173,15 +182,16 @@ fn test_nft_approve() {
 fn test_nft_revoke() {
     let mut context = get_context(accounts(0));
     testing_env!(context.build());
-    let mut contract = Contract::new_default_meta(accounts(0).into());
+    let mut contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
 
     testing_env!(context
         .storage_usage(env::storage_usage())
-        .attached_deposit(MINT_STORAGE_COST)
+        .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
+        .block_timestamp(1680000000000)
         .build());
     let token_id = "0".to_string();
-    contract.nft_mint(token_id.clone(), sample_token_metadata(), accounts(0), None);
+    contract.nft_mint(accounts(0));
 
     // alice approves bob
     testing_env!(context
@@ -211,15 +221,16 @@ fn test_nft_revoke() {
 fn test_revoke_all() {
     let mut context = get_context(accounts(0));
     testing_env!(context.build());
-    let mut contract = Contract::new_default_meta(accounts(0).into());
+    let mut contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
 
     testing_env!(context
         .storage_usage(env::storage_usage())
-        .attached_deposit(MINT_STORAGE_COST)
+        .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
+        .block_timestamp(1680000000000)
         .build());
-    let token_id = "0".to_string();
-    contract.nft_mint(token_id.clone(), sample_token_metadata(), accounts(0), None);
+    contract.nft_mint(accounts(0));
+    let token_id: String = "0".to_string();
 
     // alice approves bob
     testing_env!(context
@@ -249,15 +260,16 @@ fn test_revoke_all() {
 fn test_internal_remove_token_from_owner() {
     let mut context = get_context(accounts(0));
     testing_env!(context.build());
-    let mut contract = Contract::new_default_meta(accounts(0).into());
+    let mut contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
 
     testing_env!(context
         .storage_usage(env::storage_usage())
-        .attached_deposit(MINT_STORAGE_COST)
+        .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
+        .block_timestamp(1680000000000)
         .build());
-    let token_id = "0".to_string();
-    contract.nft_mint(token_id.clone(), sample_token_metadata(), accounts(0), None);
+    contract.nft_mint(accounts(0));
+    let token_id: String = "0".to_string();
 
     let contract_nft_tokens_before = contract.nft_tokens_for_owner(accounts(0), None, None);
     assert_eq!(contract_nft_tokens_before.len(), 1);
@@ -272,15 +284,16 @@ fn test_nft_payout() {
     use crate::royalty::NonFungibleTokenCore;
     let mut context = get_context(accounts(0));
     testing_env!(context.build());
-    let mut contract = Contract::new_default_meta(accounts(0).into());
+    let mut contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
 
     testing_env!(context
         .storage_usage(env::storage_usage())
-        .attached_deposit(MINT_STORAGE_COST)
+        .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
+        .block_timestamp(1680000000000)
         .build());
-    let token_id = "0".to_string();
-    contract.nft_mint(token_id.clone(), sample_token_metadata(), accounts(0), None);
+    contract.nft_mint(accounts(0));
+    let token_id: String = "0".to_string();
 
     // alice approves bob
     testing_env!(context
@@ -299,15 +312,15 @@ fn test_nft_payout() {
 fn test_nft_total_supply() {
     let mut context = get_context(accounts(0));
     testing_env!(context.build());
-    let mut contract = Contract::new_default_meta(accounts(0).into());
+    let mut contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
 
     testing_env!(context
         .storage_usage(env::storage_usage())
-        .attached_deposit(MINT_STORAGE_COST)
+        .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
+        .block_timestamp(1680000000000)
         .build());
-    let token_id = "0".to_string();
-    contract.nft_mint(token_id.clone(), sample_token_metadata(), accounts(0), None);
+    contract.nft_mint(accounts(0));
 
     let total_supply = contract.nft_total_supply();
     assert_eq!(total_supply, U128(1));
