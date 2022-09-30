@@ -2,7 +2,11 @@ import { BN, NearAccount } from "near-workspaces";
 
 export const DEFAULT_GAS: string = "30000000000000";
 export const DEFAULT_DEPOSIT: string = "9050000000000000000000";
-
+export const DEFAULT_DEPOSIT_FOR_MINT: string = "5009050000000000000000000";
+export const DEFAULT_BASE_URI: string = "https://gateway.pureblock.io/runner-testnet/";
+export const MINT_PRICE: string = "5000000000000000000000000";
+export const MINT_START: string = "1600000000000000000";
+export const MINT_END: string = "1690000000000000000"; // Sat Jul 22 2023 04:26:40
 
 export async function purchaseListedNFT(
   nft_contract: NearAccount,
@@ -12,7 +16,7 @@ export async function purchaseListedNFT(
 ) {
   const offer_payload = {
     nft_contract_id: nft_contract,
-    token_id: "TEST123",
+    token_id: "0",
   };
   await bidder_account.callRaw(
     market_contract,
@@ -52,7 +56,7 @@ export async function approveNFT(
   message?: string
 ) {
   const approve_payload = {
-    token_id: "TEST123",
+    token_id: "0",
     account_id: account_to_approve,
     msg: message,
   };
@@ -70,17 +74,9 @@ export async function mintNFT(
   royalties?: object
 ) {
   const mint_payload = {
-    token_id: "TEST123",
-    metadata: {
-      title: "LEEROYYYMMMJENKINSSS",
-      description: "Alright time's up, let's do this.",
-      media:
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.Fhp4lHufCdTzTeGCAblOdgHaF7%26pid%3DApi&f=1",
-    },
     receiver_id: user,
-    perpetual_royalties: royalties,
   };
-  await user.call(nft_contract, "nft_mint", mint_payload, defaultCallOptions());
+  await user.call(nft_contract, "nft_mint", mint_payload, defaultCallOptions(DEFAULT_GAS, DEFAULT_DEPOSIT_FOR_MINT));
 }
 
 export async function payForStorage(
@@ -102,7 +98,7 @@ export async function transferNFT(
 ) {
   const transfer_payload = {
     receiver_id: receiver,
-    token_id: "TEST123",
+    token_id: "0",
     approval_id: 0, // first and only approval done in line 224
   };
   await sender.call(

@@ -15,8 +15,8 @@ const MIN_REQUIRED_APPROVAL_YOCTO: u128 = 170000000000000000000;
 const DEFAULT_BASE_URI: &str = "https://gateway.pureblock.io/runner-testnet/";
 const MINT_PRICE_NEAR: u128 = 5;
 const MINT_PRICE: U128 = U128(MINT_PRICE_NEAR * 1_000_000_000_000_000_000_000_000);
-const MINT_START: U64 = U64( 1600000000000 );
-const MINT_END: U64 = U64( 1690000000000 ); // Sat Jul 22 2023 04:26:40
+const MINT_START: U64 = U64( 1600000000000000000 );
+const MINT_END: U64 = U64( 1690000000000000000 ); // Sat Jul 22 2023 04:26:40
 const MAX_SUPPLY: U128 = U128(10);
 
 fn get_context(predecessor: AccountId) -> VMContextBuilder {
@@ -69,7 +69,7 @@ fn test_mint_nft() {
         .storage_usage(env::storage_usage())
         .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
-        .block_timestamp(1680000000000)
+        .block_timestamp(1680000000000000000)
         .build());
 //     let token_metadata: TokenMetadata = sample_token_metadata();
     let token_id = "0".to_string();
@@ -97,14 +97,14 @@ fn test_mint_nft() {
 #[test]
 fn test_internal_transfer() {
     let mut context = get_context(accounts(0));
-    testing_env!(context.block_timestamp(1680000000000).build());
+    testing_env!(context.block_timestamp(1680000000000000000).build());
     let mut contract = Contract::new_default_meta(accounts(1).into(),accounts(2).into(), MAX_SUPPLY, DEFAULT_BASE_URI.to_string(), MINT_PRICE, MINT_START, MINT_END, None);
 
     testing_env!(context
         .storage_usage(env::storage_usage())
         .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
-        .block_timestamp(1680000000000)
+        .block_timestamp(1680000000000000000)
         .build());
     let token_id = "0".to_string();
     contract.nft_mint(accounts(0));
@@ -157,7 +157,7 @@ fn test_nft_approve() {
         .storage_usage(env::storage_usage())
         .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
-        .block_timestamp(1680000000000)
+        .block_timestamp(1680000000000000000)
         .build());
     let token_id = "0".to_string();
     contract.nft_mint(accounts(0));
@@ -188,7 +188,7 @@ fn test_nft_revoke() {
         .storage_usage(env::storage_usage())
         .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
-        .block_timestamp(1680000000000)
+        .block_timestamp(1680000000000000000)
         .build());
     let token_id = "0".to_string();
     contract.nft_mint(accounts(0));
@@ -227,7 +227,7 @@ fn test_revoke_all() {
         .storage_usage(env::storage_usage())
         .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
-        .block_timestamp(1680000000000)
+        .block_timestamp(1680000000000000000)
         .build());
     contract.nft_mint(accounts(0));
     let token_id: String = "0".to_string();
@@ -266,7 +266,7 @@ fn test_internal_remove_token_from_owner() {
         .storage_usage(env::storage_usage())
         .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
-        .block_timestamp(1680000000000)
+        .block_timestamp(1680000000000000000)
         .build());
     contract.nft_mint(accounts(0));
     let token_id: String = "0".to_string();
@@ -290,7 +290,7 @@ fn test_nft_payout() {
         .storage_usage(env::storage_usage())
         .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
-        .block_timestamp(1680000000000)
+        .block_timestamp(1680000000000000000)
         .build());
     contract.nft_mint(accounts(0));
     let token_id: String = "0".to_string();
@@ -318,7 +318,7 @@ fn test_nft_total_supply() {
         .storage_usage(env::storage_usage())
         .attached_deposit(MINT_PRICE.0 + MINT_STORAGE_COST)
         .predecessor_account_id(accounts(0))
-        .block_timestamp(1680000000000)
+        .block_timestamp(1680000000000000000)
         .build());
     contract.nft_mint(accounts(0));
 

@@ -7,6 +7,7 @@ mod helpers;
 
 const NFT_WASM_FILEPATH: &str = "../../out/main.wasm";
 const MARKET_WASM_FILEPATH: &str = "../../out/market.wasm";
+const DEFAULT_BASE_URI: &str = "https://gateway.pureblock.io/runner-testnet/";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -23,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
     let owner = worker.root_account();
     let alice = owner
         .create_subaccount(&worker, "alice")
-        .initial_balance(parse_near!("30 N"))
+        .initial_balance(parse_near!("31 N"))
         .transact()
         .await?
         .into_result()?;
@@ -49,7 +50,7 @@ async fn main() -> anyhow::Result<()> {
     // Initialize contracts
     nft_contract
         .call(&worker, "new_default_meta")
-        .args_json(serde_json::json!({"owner_id": owner.id(), "treasury_id": treasury.id()}))?
+        .args_json(serde_json::json!({"owner_id": owner.id(), "treasury_id": treasury.id(), "max_supply": "9", "base_uri": DEFAULT_BASE_URI, "mint_price": "5000000000000000000000000","mint_start": "1", "mint_end": "1690000000000000000", "perpetual_royalties": {treasury.id().to_string(): 2000}}))?
         .transact()
         .await?;
     market_contract
@@ -60,13 +61,13 @@ async fn main() -> anyhow::Result<()> {
 
     // begin tests
     test_nft_metadata_view(&owner, &nft_contract, &worker).await?;
-    test_nft_mint_call(&owner, &alice, &nft_contract, &worker).await?;
+    test_nft_mint_call(&owner, &alice, &nft_contract, &treasury, &worker).await?;
     test_nft_approve_call(&bob, &nft_contract, &market_contract, &worker).await?;
     test_nft_approve_call_long_msg_string(&alice, &nft_contract, &market_contract, &worker).await?;
     test_sell_nft_listed_on_marketplace(&alice, &nft_contract, &market_contract, &bob, &worker).await?;
     test_transfer_nft_when_listed_on_marketplace(&alice, &bob, &charlie, &nft_contract, &market_contract, &worker).await?;
     test_approval_revoke(&alice, &bob, &nft_contract, &market_contract, &worker).await?;
-    test_reselling_and_royalties(&alice, &bob, &charlie, &nft_contract, &market_contract, &worker).await?;
+    test_reselling_and_royalties(&alice, &bob, &charlie, &nft_contract, &market_contract, &treasury, &worker).await?;
 
     Ok(())
 }
@@ -77,7 +78,7 @@ async fn test_nft_metadata_view(
     worker: &Worker<Sandbox>,
 ) -> anyhow::Result<()> {
     let expected = json!({
-        "base_uri": "https://api.domain/",
+        "base_uri": DEFAULT_BASE_URI,
         "icon": serde_json::Value::Null,
         "name": "Near Runner",
         "reference": serde_json::Value::Null,
@@ -100,6 +101,7 @@ async fn test_nft_mint_call(
     owner: &Account,
     user: &Account,
     contract: &Contract,
+    treasury: &Account,
     worker: &Worker<Sandbox>,
 ) -> anyhow::Result<()> {
     let request_payload = json!({
@@ -114,7 +116,7 @@ async fn test_nft_mint_call(
 
     user.call(&worker, contract.id(), "nft_mint")
         .args_json(request_payload)?
-        .deposit(parse_near!("0.008 N"))
+        .deposit(parse_near!("5.008 N"))
         .transact()
         .await?;
 
@@ -128,22 +130,24 @@ async fn test_nft_mint_call(
     let expected = json!([
         {   
             "approved_account_ids": {},
-            "royalty": {},
-            "token_id": "1",
+            "royalty": {
+                treasury.id().to_string(): 2000,
+            },
+            "token_id": "0",
             "owner_id": user.id(),
             "metadata": {
                 "expires_at": serde_json::Value::Null, 
                 "extra": serde_json::Value::Null, 
                 "issued_at": serde_json::Value::Null, 
-                "copies": serde_json::Value::Null,
+                "copies": 1,
                 "media_hash": serde_json::Value::Null,
-                "reference": serde_json::Value::Null,
+                "reference": "data/0.json",
                 "reference_hash": serde_json::Value::Null,
                 "starts_at": serde_json::Value::Null,
                 "updated_at": serde_json::Value::Null,
-                "title": "LEEROYYYMMMJENKINSSS",
-                "description": "Alright time's up, let's do this.",
-                "media": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.Fhp4lHufCdTzTeGCAblOdgHaF7%26pid%3DApi&f=1"
+                "title": "A-Runner #0",
+                "description": "Near Runner play-to-earn game NFT",
+                "media": "img/0.jpg"
             }
         }
     ]);
@@ -159,8 +163,8 @@ async fn test_nft_approve_call(
     market_contract: &Contract,
     worker: &Worker<Sandbox>,
 ) -> anyhow::Result<()> {
-    let token_id = "2";
-    helpers::mint_nft(user, nft_contract, worker, token_id).await?;
+    let token_id = "1";
+    helpers::mint_nft(user, nft_contract, worker).await?;
     helpers::approve_nft(market_contract, user, nft_contract, worker, token_id).await?;
 
     let view_payload = json!({
@@ -185,8 +189,8 @@ async fn test_nft_approve_call_long_msg_string(
     market_contract: &Contract,
     worker: &Worker<Sandbox>,
 ) -> anyhow::Result<()> {
-    let token_id = "3";
-    helpers::mint_nft(user, nft_contract, worker, token_id).await?;
+    let token_id = "2";
+    helpers::mint_nft(user, nft_contract, worker).await?;
     helpers::pay_for_storage(user, market_contract, worker, 10000000000000000000000).await?;
 
     let approve_payload  = json!({
@@ -238,9 +242,10 @@ async fn test_sell_nft_listed_on_marketplace(
     buyer: &Account,
     worker: &Worker<Sandbox>,
 ) -> anyhow::Result<()> {
-    let token_id = "4";
+    let token_id = "3";
     let sale_price = 300000000000000000000000 as u128;  // 0.3 NEAR in yoctoNEAR
-    helpers::mint_nft(seller, nft_contract, worker, token_id).await?;
+    let fee = 60000000000000000000000 as u128;  // 0.06 NEAR in yoctoNEAR
+    helpers::mint_nft(seller, nft_contract, worker).await?;
     helpers::pay_for_storage(seller, market_contract, worker, 10000000000000000000000 as u128).await?;
     helpers::place_nft_for_sale(seller, market_contract, nft_contract, worker, token_id, sale_price).await?;
 
@@ -251,7 +256,7 @@ async fn test_sell_nft_listed_on_marketplace(
     let after_buyer_balance: u128 = helpers::get_user_balance(buyer, worker).await?;
 
     let dp = 1;  // being exact requires keeping track of gas usage 
-    assert_eq!(helpers::round_to_near_dp(after_seller_balance, dp), helpers::round_to_near_dp(before_seller_balance + sale_price, dp), "seller did not receive the sale price");
+    assert_eq!(helpers::round_to_near_dp(after_seller_balance, dp), helpers::round_to_near_dp(before_seller_balance + sale_price - fee, dp), "seller did not receive the sale price without trade fee");
     assert_eq!(helpers::round_to_near_dp(after_buyer_balance, dp), helpers::round_to_near_dp(before_buyer_balance - sale_price, dp), "buyer did not receive the sale price");
 
     println!("      Passed ✅ test_sell_nft_listed_on_marketplace");
@@ -266,9 +271,9 @@ async fn test_transfer_nft_when_listed_on_marketplace(
     market_contract: &Contract,
     worker: &Worker<Sandbox>,
 ) -> anyhow::Result<()> {
-    let token_id = "5";
+    let token_id = "4";
     let sale_price = 3000000000000000000000000 as u128;  // 3 NEAR in yoctoNEAR
-    helpers::mint_nft(seller, nft_contract, worker, token_id).await?;
+    helpers::mint_nft(seller, nft_contract, worker).await?;
     helpers::pay_for_storage(seller, market_contract, worker, 10000000000000000000000 as u128).await?;
     helpers::place_nft_for_sale(seller, market_contract, nft_contract, worker, token_id, sale_price).await?;
 
@@ -303,9 +308,9 @@ async fn test_approval_revoke(
     market_contract: &Contract,
     worker: &Worker<Sandbox>,
 ) -> anyhow::Result<()> {
-    let token_id = "6";
+    let token_id = "5";
     let sale_price = 3000000000000000000000000 as u128;  // 3 NEAR in yoctoNEAR
-    helpers::mint_nft(first_user, nft_contract, worker, token_id).await?;
+    helpers::mint_nft(first_user, nft_contract, worker).await?;
     helpers::pay_for_storage(first_user, market_contract, worker, 10000000000000000000000 as u128).await?;
     helpers::place_nft_for_sale(first_user, market_contract, nft_contract, worker, token_id, sale_price).await?;
 
@@ -348,27 +353,20 @@ async fn test_reselling_and_royalties(
     second_buyer: &Account,
     nft_contract: &Contract,
     market_contract: &Contract,
+    treasury: &Account,
     worker: &Worker<Sandbox>,
 ) -> anyhow::Result<()> {
-    let token_id = "7";
+    let token_id = "6";
     let sale_price = 3000000000000000000000000 as u128;  // 3 NEAR in yoctoNEAR
+    let fee = 600000000000000000000000 as u128;  // 0.6 NEAR in yoctoNEAR
 
-    // mint with royalties
+    // mint
     let request_payload = json!({
-        "token_id": token_id,
         "receiver_id": user.id(),
-        "metadata": {
-            "title": "Grumpy Cat",
-            "description": "Not amused.",
-            "media": "https://www.adamsdrafting.com/wp-content/uploads/2018/06/More-Grumpy-Cat.jpg"
-        },
-        "perpetual_royalties": {
-            user.id().to_string(): 2000 as u128
-        }
     });
     user.call(&worker, nft_contract.id(), "nft_mint")
         .args_json(request_payload)?
-        .deposit(helpers::DEFAULT_DEPOSIT)
+        .deposit(parse_near!("5.1 N"))
         .transact()
         .await?;
 
@@ -388,7 +386,7 @@ async fn test_reselling_and_royalties(
     assert_eq!(owner_id, first_buyer.id().to_string(), "token owner is not first_buyer");
 
     // assert balances changed
-    assert_eq!(helpers::round_to_near_dp(after_seller_balance, 0), helpers::round_to_near_dp(before_seller_balance + sale_price, 0), "seller balance unchanged");
+    assert_eq!(helpers::round_to_near_dp(after_seller_balance, 0), helpers::round_to_near_dp(before_seller_balance + sale_price - fee, 0), "seller balance unchanged");
     assert_eq!(helpers::round_to_near_dp(after_buyer_balance, 0), helpers::round_to_near_dp(before_buyer_balance - sale_price, 0), "buyer balance unchanged");
 
     // first buyer lists nft for sale
@@ -399,9 +397,9 @@ async fn test_reselling_and_royalties(
     let resale_price = sale_price * 5;  // 15 NEAR
     before_seller_balance = helpers::get_user_balance(first_buyer, worker).await?;
     before_buyer_balance = helpers::get_user_balance(second_buyer, worker).await?;
-    let before_user_balance: u128 = helpers::get_user_balance(user, worker).await?;
+    let before_user_balance: u128 = helpers::get_user_balance(treasury, worker).await?;
     helpers::purchase_listed_nft(second_buyer, market_contract, nft_contract, worker, token_id, resale_price).await?;
-    let after_user_balance: u128 = helpers::get_user_balance(user, worker).await?;
+    let after_user_balance: u128 = helpers::get_user_balance(treasury, worker).await?;
     after_seller_balance = helpers::get_user_balance(first_buyer, worker).await?;
     after_buyer_balance = helpers::get_user_balance(second_buyer, worker).await?;
 

@@ -1,28 +1,23 @@
+use near_units::parse_near;
 use serde_json::json;
 use workspaces::{network::Sandbox, Account, Contract, Worker, AccountDetails};
 
 pub const DEFAULT_DEPOSIT: u128 = 6760000000000000000000 as u128;
 pub const DEFAULT_GAS: u128 = 300000000000000 as u128;
 
+
 pub async fn mint_nft(
     user: &Account,
     nft_contract: &Contract,
     worker: &Worker<Sandbox>,
-    token_id: &str,
-) -> anyhow::Result<()> { 
+) -> anyhow::Result<()> {
     let request_payload = json!({
-        "token_id": token_id,
         "receiver_id": user.id(),
-        "metadata": {
-            "title": "Grumpy Cat",
-            "description": "Not amused.",
-            "media": "https://www.adamsdrafting.com/wp-content/uploads/2018/06/More-Grumpy-Cat.jpg"
-        },
     });
 
     user.call(&worker, nft_contract.id(), "nft_mint")
         .args_json(request_payload)?
-        .deposit(DEFAULT_DEPOSIT)
+        .deposit(parse_near!("5.008 N"))
         .transact()
         .await?;
     

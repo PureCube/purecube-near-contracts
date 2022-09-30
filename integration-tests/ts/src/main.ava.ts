@@ -2,8 +2,20 @@ import anyTest, { TestFn } from "ava";
 import { NEAR, NearAccount, Worker, BN } from "near-workspaces";
 import path from "path";
 import {
-  approveNFT, defaultCallOptions, DEFAULT_GAS, mintNFT, payForStorage,
-  placeNFTForSale, purchaseListedNFT, transferNFT
+  approveNFT,
+  defaultCallOptions,
+  DEFAULT_GAS,
+  mintNFT,
+  payForStorage,
+  placeNFTForSale,
+  purchaseListedNFT,
+  transferNFT,
+  MINT_PRICE,
+  DEFAULT_BASE_URI,
+  MINT_START,
+  MINT_END,
+  DEFAULT_DEPOSIT,
+  DEFAULT_DEPOSIT_FOR_MINT
 } from "./utils";
 
 const test = anyTest as TestFn<{
@@ -20,11 +32,24 @@ test.beforeEach(async (t) => {
   });
 
   const nftContractLocation = path.join(__dirname, "../../../out/main.wasm");
+
+  const royalties_string = `{"${treasury.accountId}":2000}`; // 20%
+  const royalties = JSON.parse(royalties_string);
+
   const nft_contract = await root.devDeploy(
     nftContractLocation,
     {
       method: "new_default_meta",
-      args: { owner_id: root, treasury_id: treasury, },
+      args: {
+        owner_id: root,
+        treasury_id: treasury,
+        max_supply: "10",
+        base_uri: DEFAULT_BASE_URI,
+        mint_price: MINT_PRICE,
+        mint_start: MINT_START,
+        mint_end: MINT_END,
+        perpetual_royalties: royalties,
+      },
       initialBalance: NEAR.parse("100 N").toJSON()
     }
   );
@@ -64,7 +89,7 @@ test.afterEach.always(async (t) => {
 test("nft contract: nft metadata view", async (t) => {
   const { root, nft_contract } = t.context.accounts;
   const expected = {
-    base_uri: "https://api.domain/",
+    base_uri: DEFAULT_BASE_URI,
     icon: null,
     name: "Near Runner",
     reference: null,
@@ -81,20 +106,13 @@ test("nft contract: nft metadata view", async (t) => {
 test("nft contract: nft mint call", async (t) => {
   const { alice, nft_contract } = t.context.accounts;
   const request_payload = {
-    token_id: "TEST123",
-    metadata: {
-      title: "LEEROYYYMMMJENKINSSS",
-      description: "Alright time's up, let's do this.",
-      media:
-        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.Fhp4lHufCdTzTeGCAblOdgHaF7%26pid%3DApi&f=1",
-    },
     receiver_id: alice,
   };
   await alice.call(
     nft_contract,
     "nft_mint",
     request_payload,
-    defaultCallOptions()
+    defaultCallOptions(DEFAULT_GAS, DEFAULT_DEPOSIT_FOR_MINT)
   );
 
   const tokens = await nft_contract.view("nft_tokens");
@@ -102,23 +120,24 @@ test("nft contract: nft mint call", async (t) => {
     {
       approved_account_ids: {},
       metadata: {
-        copies: null,
-        description: "Alright time's up, let's do this.",
+        copies: 1,
+        description: "Near Runner play-to-earn game NFT",
         expires_at: null,
         extra: null,
         issued_at: null,
-        media:
-          "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.Fhp4lHufCdTzTeGCAblOdgHaF7%26pid%3DApi&f=1",
+        media: "img/0.jpg",
         media_hash: null,
-        reference: null,
+        reference: "data/0.json",
         reference_hash: null,
         starts_at: null,
-        title: "LEEROYYYMMMJENKINSSS",
+        title: "A-Runner #0",
         updated_at: null,
       },
       owner_id: alice.accountId,
-      royalty: {},
-      token_id: "TEST123",
+      royalty: {
+          "treasury.test.near": 2000,
+      },
+      token_id: "0",
     },
   ];
   t.deepEqual(tokens, expected, "Expected to find one minted NFT");
@@ -131,7 +150,7 @@ test("nft contract: nft approve call", async (t) => {
 
   // test if approved
   const view_payload = {
-    token_id: "TEST123",
+    token_id: "0",
     approved_account_id: market_contract,
   };
   const approved = await nft_contract.view("nft_is_approved", view_payload);
@@ -145,7 +164,7 @@ test("nft contract: nft approve call long msg string", async (t) => {
 
   // approve NFT
   const approve_payload = {
-    token_id: "TEST123",
+    token_id: "0",
     account_id: market_contract,
     msg: "sample message".repeat(10 * 1024),
   };
@@ -159,7 +178,7 @@ test("nft contract: nft approve call long msg string", async (t) => {
 
   // test if approved
   const view_payload = {
-    token_id: "TEST123",
+    token_id: "0",
     approved_account_id: market_contract,
   };
   const approved = await nft_contract.view("nft_is_approved", view_payload);
@@ -197,7 +216,7 @@ test("cross contract: sell NFT listed on marketplace", async (t) => {
 
   // NFT has new owner
   const view_payload = {
-    token_id: "TEST123",
+    token_id: "0",
   };
   const token_info: any = await nft_contract.view("nft_token", view_payload);
   t.is(token_info.owner_id, bob.accountId, "NFT should have been sold");
@@ -219,7 +238,7 @@ test("cross contract: transfer NFT when listed on marketplace", async (t) => {
   // purchase NFT
   const offer_payload = {
     nft_contract_id: nft_contract,
-    token_id: "TEST123",
+    token_id: "0",
   };
   const result = await charlie.callRaw(
     market_contract,
@@ -234,7 +253,7 @@ test("cross contract: transfer NFT when listed on marketplace", async (t) => {
   // assert expectations
   // NFT has same owner
   const view_payload = {
-    token_id: "TEST123",
+    token_id: "0",
   };
   const token_info: any = await nft_contract.view("nft_token", view_payload);
   t.is(
@@ -259,7 +278,7 @@ test("cross contract: approval revoke", async (t) => {
 
   // revoke approval
   const revoke_payload = {
-    token_id: "TEST123",
+    token_id: "0",
     account_id: market_contract, // revoke market contract authorization
   };
   await alice.call(
@@ -272,7 +291,7 @@ test("cross contract: approval revoke", async (t) => {
   // transfer NFT
   const transfer_payload = {
     receiver_id: bob,
-    token_id: "TEST123",
+    token_id: "0",
     approval_id: 1,
   };
   const result = await market_contract.callRaw(
@@ -288,15 +307,18 @@ test("cross contract: approval revoke", async (t) => {
 });
 
 test("cross contract: reselling and royalties", async (t) => {
-  const { alice, nft_contract, market_contract, bob, charlie } = t.context.accounts;
+  const { alice, nft_contract, market_contract, bob, charlie, treasury } = t.context.accounts;
   const royalties_string = `{"${alice.accountId}":2000}`;
   const royalties = JSON.parse(royalties_string);
   await mintNFT(alice, nft_contract, royalties);
   await payForStorage(alice, market_contract);
   const ask_price = "300000000000000000000000";
+
   await placeNFTForSale(market_contract, alice, nft_contract, ask_price);
 
   const bid_price = ask_price + "0";
+
+  const fee_amount = "600000000000000000000000";
 
   const alice_balance_before = await alice.availableBalance();
   const bob_balance_before = await bob.availableBalance();
@@ -308,8 +330,8 @@ test("cross contract: reselling and royalties", async (t) => {
   const slice_val = test_precision_dp_near - 24;
   t.is(
     alice_balance_after.toString().slice(0, slice_val),
-    alice_balance_before.add(NEAR.from(bid_price)).toString().slice(0, slice_val),
-    "Alice balance should increase by sale price"
+    alice_balance_before.add(NEAR.from(bid_price)).sub(NEAR.from(fee_amount)).toString().slice(0, slice_val),
+    "Alice balance should increase by sale price and decreased by 20% fee"
   );
   t.is(
     bob_balance_after.toString().slice(0, slice_val),
@@ -326,7 +348,7 @@ test("cross contract: reselling and royalties", async (t) => {
   const lowered_resell_ask_price = "600000000000000000000000";
   const update_price_payload = {
     nft_contract_id: nft_contract,
-    token_id: "TEST123",
+    token_id: "0",
     price: lowered_resell_ask_price,
   };
   await bob.call(
@@ -336,18 +358,18 @@ test("cross contract: reselling and royalties", async (t) => {
     defaultCallOptions(DEFAULT_GAS, "1")
   );
 
-  const alice_balance_before_2 = await alice.availableBalance();
+  const treasury_balance_before_2 = await treasury.availableBalance();
   const bob_balance_before_2 = await bob.availableBalance();
   const charlie_balance_before_2 = await charlie.availableBalance();
   await purchaseListedNFT(nft_contract, charlie, market_contract, resell_ask_price);
-  const alice_balance_after_2 = await alice.availableBalance();
+  const treasury_balance_after_2 = await treasury.availableBalance();
   const bob_balance_after_2 = await bob.availableBalance();
   const charlie_balance_after_2 = await charlie.availableBalance();
 
   t.is(
-    alice_balance_after_2.sub(alice_balance_before_2).toHuman(),
+    treasury_balance_after_2.sub(treasury_balance_before_2).toHuman(),
     "6 N",
-    "Alice balance should increase by royalty fee of 20% of sale price"
+    "Treasury balance should increase by royalty fee of 20% of sale price"
   )
   t.is(
     bob_balance_after_2.sub(bob_balance_before_2).toHuman(),
