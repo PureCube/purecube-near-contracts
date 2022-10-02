@@ -7,7 +7,7 @@ mod helpers;
 
 const NFT_WASM_FILEPATH: &str = "../../out/main.wasm";
 const MARKET_WASM_FILEPATH: &str = "../../out/market.wasm";
-const DEFAULT_BASE_URI: &str = "https://gateway.pureblock.io/runner-testnet/";
+const DEFAULT_BASE_URI: &str = "https://gateway.pureblock.io/runner-testnet";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

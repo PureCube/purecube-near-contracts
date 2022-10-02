@@ -12,7 +12,7 @@ use std::collections::HashMap;
 
 const MINT_STORAGE_COST: u128 = 100_000_000_000_000_000_000_000;
 const MIN_REQUIRED_APPROVAL_YOCTO: u128 = 170000000000000000000;
-const DEFAULT_BASE_URI: &str = "https://gateway.pureblock.io/runner-testnet/";
+const DEFAULT_BASE_URI: &str = "https://gateway.pureblock.io/runner-testnet";
 const MINT_PRICE_NEAR: u128 = 5;
 const MINT_PRICE: U128 = U128(MINT_PRICE_NEAR * 1_000_000_000_000_000_000_000_000);
 const MINT_START: U64 = U64( 1600000000000000000 );

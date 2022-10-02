@@ -170,6 +170,43 @@ impl Contract {
         //return the Contract object
         this
     }
+
+    #[payable]
+    pub fn set_meta(
+        &mut self,
+        name: String,
+        base_uri: String,
+        icon: Option<String>,
+    ) {
+        assert_eq!(
+              &env::predecessor_account_id(),
+              &self.owner_id,
+              "Predecessor must be contract owner."
+        );
+        assert!(
+            icon.as_ref().map(|b| b.len() <= 100).unwrap_or(true),
+            "Icon URI must be less then 100 chars"
+        );
+        assert!(
+            base_uri.len() <= 100,
+            "Base URI must be less then 100 chars"
+        );
+
+        self.metadata = LazyOption::new(
+           StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
+           Some(&NFTContractMetadata {
+                   spec: "nft-1.0.0".to_string(),
+                   name: name.to_string(),
+                   symbol: "RUNNER".to_string(),
+                   icon,
+                   base_uri: Some(base_uri.to_string()),
+                   reference: None,
+                   reference_hash: None,
+           }),
+        )
+
+        //todo: event log
+    }
 }
 
 #[cfg(test)]

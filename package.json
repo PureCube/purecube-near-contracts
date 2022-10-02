@@ -1,6 +1,6 @@
 {
     "name": "pureblock-near-contracts",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Smart contracts for PureBlock platform at Near Protocol",
     "author": "PureBlock",
     "license": "GPL-3.0-or-later",

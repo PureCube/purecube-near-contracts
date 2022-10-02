@@ -14,7 +14,6 @@ import {
   DEFAULT_BASE_URI,
   MINT_START,
   MINT_END,
-  DEFAULT_DEPOSIT,
   DEFAULT_DEPOSIT_FOR_MINT
 } from "./utils";
 
@@ -381,4 +380,33 @@ test("cross contract: reselling and royalties", async (t) => {
     "30",
     "Charlie balance should decrease by sale price"
   )
+});
+
+test("nft contract: change contract meta", async (t) => {
+  const { root, nft_contract } = t.context.accounts;
+  const expected = {
+    base_uri: "https://channged",
+    icon: null,
+    name: "Near Runner2",
+    reference: null,
+    reference_hash: null,
+    spec: "nft-1.0.0",
+    symbol: "RUNNER",
+  };
+
+  await root.call(
+      nft_contract,
+      "set_meta",
+      {
+        name: "Near Runner2",
+        base_uri: 'https://channged',
+        icon: null,
+      },
+      defaultCallOptions(DEFAULT_GAS,  "1")
+  );
+
+  t.deepEqual(
+      await nft_contract.view("nft_metadata", { account_id: root }),
+      expected
+  );
 });
