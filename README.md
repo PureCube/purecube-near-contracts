@@ -81,3 +81,13 @@ echo $BASE_URI
 near call $NFT_CONTRACT_ID set_meta '{"name": "Near Runner", "base_uri": "'$BASE_URI'", "icon": ""}' --accountId $NFT_CONTRACT_ID --depositYocto 1
 near view $NFT_CONTRACT_ID nft_metadata
 ```
+
+### List NFT on marketplaces
+
+#### Mintbase
+```
+echo $NFT_CONTRACT_ID
+echo $MAIN_ACCOUNT
+near call market-v2-beta.mintspace2.testnet deposit_storage '{}' --deposit 0.01 --accountId $MAIN_ACCOUNT
+near call $NFT_CONTRACT_ID nft_approve '{"account_id": "market-v2-beta.mintspace2.testnet", "token_id": "0", "msg": "{\"price\":\"1000000000000000000000000\"}"}' --depositYocto 450000000000000000000 --accountId $MAIN_ACCOUNT
+```
