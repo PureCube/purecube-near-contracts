@@ -25,7 +25,7 @@ mod royalty;
 mod events;
 
 /// This spec can be treated like a version of the standard.
-pub const NFT_METADATA_SPEC: &str = "nft-1.0.0";
+pub const NFT_METADATA_SPEC: &str = "1.0.0";
 /// This is the name of the NFT standard we're using
 pub const NFT_STANDARD_NAME: &str = "nep171";
 
@@ -98,7 +98,7 @@ impl Contract {
         Self::new(
             owner_id,
             NFTContractMetadata {
-                spec: "nft-1.0.0".to_string(),
+                spec: format!("nft-{}", NFT_METADATA_SPEC).to_string(),
                 name: "Near Runner".to_string(),
                 symbol: "RUNNER".to_string(),
                 icon: None,
