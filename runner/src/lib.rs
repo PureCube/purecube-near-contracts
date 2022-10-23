@@ -39,10 +39,7 @@ pub struct Contract {
     pub tokens_per_owner: LookupMap<AccountId, UnorderedSet<TokenId>>,
 
     //keeps track of the token struct for a given token ID
-    pub tokens_by_id: LookupMap<TokenId, Token>,
-
-    //keeps track of the token metadata for a given token ID
-    pub token_metadata_by_id: UnorderedMap<TokenId, TokenMetadata>,
+    pub tokens_by_id: UnorderedMap<TokenId, Token>,
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
@@ -149,11 +146,8 @@ impl Contract {
         let this = Self {
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
-            tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
-            token_metadata_by_id: UnorderedMap::new(
-                StorageKey::TokenMetadataById.try_to_vec().unwrap(),
-            ),
-            //set the owner_id field equal to the passed in owner_id. 
+            tokens_by_id: UnorderedMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
+            //set the owner_id field equal to the passed in owner_id.
             owner_id,
             metadata: LazyOption::new(
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),

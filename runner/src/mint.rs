@@ -39,21 +39,6 @@ impl Contract {
             Promise::new(self.treasury_id.clone()).transfer(self.mint_price.0);
         }
 
-        let new_metadata = TokenMetadata {
-            title: Some(format!("A-Runner #{}", next_token_id).to_string()),
-            description: Some("Near Runner play-to-earn game NFT".to_string()),
-            media: Some(format!("img/{}.jpg", next_token_id).to_string()),
-            reference: Some(format!("data/{}.json", next_token_id).to_string()),
-            copies: Some(1u64),
-            media_hash: None,
-            issued_at: None,
-            expires_at: None,
-            starts_at: None,
-            updated_at: None,
-            extra: None,
-            reference_hash: None,
-        };
-
         //specify the token struct that contains the owner ID 
         let token = Token {
             //set the owner ID equal to the receiver ID passed into the function
@@ -70,31 +55,8 @@ impl Contract {
             "Token already exists"
         );
 
-        //insert the token ID and metadata
-        self.token_metadata_by_id.insert(&next_token_id, &new_metadata);
-
         //call the internal method for adding the token to the owner
         self.internal_add_token_to_owner(&token.owner_id, &next_token_id);
-
-        // Construct the mint log as per the events standard.
-        let nft_mint_log: EventLog = EventLog {
-            // Standard name ("nep171").
-            standard: NFT_STANDARD_NAME.to_string(),
-            // Version of the standard ("nft-1.0.0").
-            version: NFT_METADATA_SPEC.to_string(),
-            // The data related with the event stored in a vector.
-            event: EventLogVariant::NftMint(vec![NftMintLog {
-                // Owner of the token.
-                owner_id: token.owner_id.to_string(),
-                // Vector of token IDs that were minted.
-                token_ids: vec![next_token_id.to_string()],
-                // An optional memo to include.
-                memo: None,
-            }]),
-        };
-
-        // Log the serialized json.
-        env::log_str(&nft_mint_log.to_string());
 
         //calculate the required storage which was the used - initial
         let required_storage_in_bytes = env::storage_usage() - initial_storage_usage;
@@ -121,5 +83,25 @@ impl Contract {
         if refund > 1 {
             Promise::new(env::predecessor_account_id()).transfer(refund);
         }
+
+        // Construct the mint log as per the events standard.
+        let nft_mint_log: EventLog = EventLog {
+            // Standard name ("nep171").
+            standard: NFT_STANDARD_NAME.to_string(),
+            // Version of the standard ("nft-1.0.0").
+            version: NFT_METADATA_SPEC.to_string(),
+            // The data related with the event stored in a vector.
+            event: EventLogVariant::NftMint(vec![NftMintLog {
+                // Owner of the token.
+                owner_id: token.owner_id.to_string(),
+                // Vector of token IDs that were minted.
+                token_ids: vec![next_token_id.to_string()],
+                // An optional memo to include.
+                memo: None,
+            }]),
+        };
+
+        // Log the serialized json.
+        env::log_str(&nft_mint_log.to_string());
     }
 }

@@ -162,8 +162,22 @@ impl NonFungibleTokenCore for Contract {
     fn nft_token(&self, token_id: TokenId) -> Option<JsonToken> {
         //if there is some token ID in the tokens_by_id collection
         if let Some(token) = self.tokens_by_id.get(&token_id) {
-            //we'll get the metadata for that token
-            let metadata = self.token_metadata_by_id.get(&token_id).unwrap();
+            //we'll generate the metadata for that token
+            let metadata = TokenMetadata {
+                title: Some(format!("A-Runner #{}", token_id).to_string()),
+                description: Some("Near Runner play-to-earn game NFT".to_string()),
+                media: Some(format!("img/{}.jpg", token_id).to_string()),
+                reference: Some(format!("data/{}.json", token_id).to_string()),
+                copies: Some(1u64),
+                media_hash: None,
+                issued_at: None,
+                expires_at: None,
+                starts_at: None,
+                updated_at: None,
+                extra: None,
+                reference_hash: None,
+            };
+
             //we return the JsonToken (wrapped by Some since we return an option)
             Some(JsonToken {
                 token_id,
