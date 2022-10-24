@@ -165,8 +165,8 @@ impl NonFungibleTokenCore for Contract {
             //we'll generate the metadata for that token
             let metadata = TokenMetadata {
                 title: Some(format!("A-Runner #{}", token_id).to_string()),
-                description: Some("Near Runner play-to-earn game NFT".to_string()),
-                media: Some(format!("img/{}.jpg", token_id).to_string()),
+                description: Some("A-Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.".to_string()),
+                media: Some(format!("img/{}.png", token_id).to_string()),
                 reference: Some(format!("data/{}.json", token_id).to_string()),
                 copies: Some(1u64),
                 media_hash: None,

@@ -28,8 +28,8 @@ fn get_context(predecessor: AccountId) -> VMContextBuilder {
 fn sample_token_metadata() -> TokenMetadata {
     TokenMetadata {
         title: Some("A-Runner #0".into()),
-        description: Some("Near Runner play-to-earn game NFT".into()),
-        media: Some("img/0.jpg".into()),
+        description: Some("A-Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.".into()),
+        media: Some("img/0.png".into()),
         media_hash: None,
         copies: Some(1u64),
         issued_at: None,

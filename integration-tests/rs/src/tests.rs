@@ -79,8 +79,8 @@ async fn test_nft_metadata_view(
 ) -> anyhow::Result<()> {
     let expected = json!({
         "base_uri": DEFAULT_BASE_URI,
-        "icon": serde_json::Value::Null,
-        "name": "Near Runner",
+        "icon": "data:image/svg+xml,%3Csvg id='Layer_2' data-name='Layer 2' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 566.1 555.59'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:%23f15a29;%7D%3C/style%3E%3C/defs%3E%3Cpath class='cls-1' d='M708.73,315.12c-51.79-57-126-92.91-208.8-92.91s-157,36-208.7,92.91A284.3,284.3,0,0,0,217,506.91c.05,135,28.75,205.94,75.67,243.24a147.36,147.36,0,0,0,27.31,17.25c-3.78-3-7.42-6.31-10.84-9.66a153.64,153.64,0,0,1-46.47-108.63c-1.75-43.71-2.58-73-3.57-107-.45-17.91-1-37-1.75-60.44,0-88.38,92-154.43,174.26-154.43H568.42c99.77,0,174.26,81.5,174.26,154.83-.71,23-1.23,42-1.78,60-1,34-1.79,63.3-3.54,106.65A156.09,156.09,0,0,1,679,768.18a153.42,153.42,0,0,0,30-18.88c46-37.58,74.06-108.51,74.06-242.39a284.62,284.62,0,0,0-74.32-191.79Z' transform='translate(-216.95 -222.21)'/%3E%3Cpath class='cls-1' d='M564.92,352H435c-74,0-152.76,60-152.76,134,2,63,2.46,94.93,5,158.36.38,48.13,26.18,90,64.43,113.4a134.15,134.15,0,0,0,70.73,20.08H577.51a134.43,134.43,0,0,0,70.78-20.08c38.18-23.46,64-65.23,64.38-113.4,2.58-63.45,3.07-95.39,5.11-158.36C717.75,412,638.92,352,564.92,352ZM422.46,587.21a49.52,49.52,0,0,1-30.31,10.42,51.07,51.07,0,1,1,30.31-10.42ZM607.8,597.65a51.05,51.05,0,0,1-50.46-50.44,50.46,50.46,0,1,1,50.46,50.44Z' transform='translate(-216.95 -222.21)'/%3E%3C/svg%3E",
+        "name": "A-Runner",
         "reference": serde_json::Value::Null,
         "reference_hash": serde_json::Value::Null,
         "spec": "nft-1.0.0",
@@ -146,8 +146,8 @@ async fn test_nft_mint_call(
                 "starts_at": serde_json::Value::Null,
                 "updated_at": serde_json::Value::Null,
                 "title": "A-Runner #0",
-                "description": "Near Runner play-to-earn game NFT",
-                "media": "img/0.jpg"
+                "description": "A-Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.",
+                "media": "img/0.png"
             }
         }
     ]);
