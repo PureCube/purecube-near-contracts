@@ -1,10 +1,10 @@
-# PureBlock Near Contracts
+# PureCube Near Contracts
 
-Smart contracts for PureBlock platform at Near Protocol.
+Smart contracts for PureCube platform at Near Protocol.
 
 ## Runner
 
-A-Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill and loyalty.
+Chubby Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill and loyalty.
 
 ### Implementation details
 
@@ -43,6 +43,7 @@ Simple NFT marketplace contract
 ```=bash
 yarn build
 yarn test
+yarn clean
 ```
 
 ### Mint An NFT
@@ -51,7 +52,7 @@ yarn test
 near login
 MAIN_ACCOUNT=your-account.testnet
 NFT_CONTRACT_ID=a-runner.your-account.testnet
-BASE_URI=https://gateway.pureblock.io/a-runner-testnet
+BASE_URI=https://gateway.purecube.io/chubby-runners-testnet
 echo $NFT_CONTRACT_ID
 echo $MAIN_ACCOUNT
 echo $BASE_URI

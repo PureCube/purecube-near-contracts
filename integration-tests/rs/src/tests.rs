@@ -7,7 +7,7 @@ mod helpers;
 
 const NFT_WASM_FILEPATH: &str = "../../out/main.wasm";
 const MARKET_WASM_FILEPATH: &str = "../../out/market.wasm";
-const DEFAULT_BASE_URI: &str = "https://gateway.pureblock.io/runner-testnet";
+const DEFAULT_BASE_URI: &str = "https://gateway.purecube.io/cubby-runners-testnet";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -145,8 +145,8 @@ async fn test_nft_mint_call(
                 "reference_hash": serde_json::Value::Null,
                 "starts_at": serde_json::Value::Null,
                 "updated_at": serde_json::Value::Null,
-                "title": "A-Runner #0",
-                "description": "A-Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.",
+                "title": "Chubby Runner #0",
+                "description": "Chubby Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.",
                 "media": "img/0.png"
             }
         }

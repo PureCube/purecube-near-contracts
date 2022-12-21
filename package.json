@@ -1,11 +1,12 @@
 {
-    "name": "pureblock-near-contracts",
+    "name": "purecube-near-contracts",
     "version": "0.1.1",
-    "description": "Smart contracts for PureBlock platform at Near Protocol",
-    "author": "PureBlock",
+    "description": "Smart contracts for PureCube platform at Near Protocol",
+    "author": "PureCube",
     "license": "GPL-3.0-or-later",
     "scripts": {
         "build": "cd runner && bash build.sh && cd .. && ls && cd marketplace && bash build.sh && cd ..",
+        "clean": "cd runner && cargo clean && cd .. && ls && cd marketplace && cargo clean && cd ..",
         "test": "npm run test:unit && npm run test:integration",
             "test:unit": "npm run test:unit:nft && npm run test:unit:market",
                 "test:unit:nft": "cd runner && cargo test -- --nocapture --color=always && cd ..",

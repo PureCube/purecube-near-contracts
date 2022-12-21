@@ -120,7 +120,7 @@ test("nft contract: nft mint call", async (t) => {
       approved_account_ids: {},
       metadata: {
         copies: 1,
-        description: "A-Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.",
+        description: "Chubby Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.",
         expires_at: null,
         extra: null,
         issued_at: null,
@@ -129,7 +129,7 @@ test("nft contract: nft mint call", async (t) => {
         reference: "data/0.json",
         reference_hash: null,
         starts_at: null,
-        title: "A-Runner #0",
+        title: "Chubby Runner #0",
         updated_at: null,
       },
       owner_id: alice.accountId,

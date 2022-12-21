@@ -12,7 +12,7 @@ use std::collections::HashMap;
 
 const MINT_STORAGE_COST: u128 = 100_000_000_000_000_000_000_000;
 const MIN_REQUIRED_APPROVAL_YOCTO: u128 = 170000000000000000000;
-const DEFAULT_BASE_URI: &str = "https://gateway.pureblock.io/runner-testnet";
+const DEFAULT_BASE_URI: &str = "https://gateway.purecube.io/runner-testnet";
 const MINT_PRICE_NEAR: u128 = 5;
 const MINT_PRICE: U128 = U128(MINT_PRICE_NEAR * 1_000_000_000_000_000_000_000_000);
 const MINT_START: U64 = U64( 1600000000000000000 );
@@ -27,8 +27,8 @@ fn get_context(predecessor: AccountId) -> VMContextBuilder {
 
 fn sample_token_metadata() -> TokenMetadata {
     TokenMetadata {
-        title: Some("A-Runner #0".into()),
-        description: Some("A-Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.".into()),
+        title: Some("Chubby Runner #0".into()),
+        description: Some("Chubby Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.".into()),
         media: Some("img/0.png".into()),
         media_hash: None,
         copies: Some(1u64),

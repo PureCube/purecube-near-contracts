@@ -164,8 +164,8 @@ impl NonFungibleTokenCore for Contract {
         if let Some(token) = self.tokens_by_id.get(&token_id) {
             //we'll generate the metadata for that token
             let metadata = TokenMetadata {
-                title: Some(format!("A-Runner #{}", token_id).to_string()),
-                description: Some("A-Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.".to_string()),
+                title: Some(format!("Chubby Runner #{}", token_id).to_string()),
+                description: Some("Chubby Runners are designed to provide the ultimate play & earn experience. We believe in rewarding players for their effort, skill, and loyalty.".to_string()),
                 media: Some(format!("img/{}.png", token_id).to_string()),
                 reference: Some(format!("data/{}.json", token_id).to_string()),
                 copies: Some(1u64),

@@ -3,7 +3,7 @@ import { BN, NearAccount } from "near-workspaces";
 export const DEFAULT_GAS: string = "30000000000000";
 export const DEFAULT_DEPOSIT: string = "9050000000000000000000";
 export const DEFAULT_DEPOSIT_FOR_MINT: string = "5009050000000000000000000";
-export const DEFAULT_BASE_URI: string = "https://gateway.pureblock.io/runner-testnet";
+export const DEFAULT_BASE_URI: string = "https://gateway.purecube.io/chubby-runners-testnet";
 export const MINT_PRICE: string = "5000000000000000000000000";
 export const MINT_START: string = "1600000000000000000";
 export const MINT_END: string = "1690000000000000000"; // Sat Jul 22 2023 04:26:40
