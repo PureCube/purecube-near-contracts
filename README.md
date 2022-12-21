@@ -50,18 +50,18 @@ yarn clean
 
 ```=bash
 near login
-MAIN_ACCOUNT=your-account.testnet
-NFT_CONTRACT_ID=a-runner.your-account.testnet
+MAIN_ACCOUNT=purecube.testnet
+NFT_CONTRACT_ID=chubby-runners.purecube.testnet
 BASE_URI=https://gateway.purecube.io/chubby-runners-testnet
 echo $NFT_CONTRACT_ID
 echo $MAIN_ACCOUNT
 echo $BASE_URI
-near create-account $NFT_CONTRACT_ID --masterAccount $MAIN_ACCOUNT --initialBalance 10
+near create-account $NFT_CONTRACT_ID --masterAccount $MAIN_ACCOUNT --initialBalance 4
 near deploy --accountId $NFT_CONTRACT_ID --wasmFile out/main.wasm
-near call $NFT_CONTRACT_ID new_default_meta '{"owner_id": "'$NFT_CONTRACT_ID'","treasury_id": "'$MAIN_ACCOUNT'", "max_supply": "100", 
-"base_uri": "'$BASE_URI'", "mint_price": "10000000000000000000000000","mint_start": "1666605800000000000", "mint_end": "1690000000000000000", "perpetual_royalties": {"'$MAIN_ACCOUNT'": 100}}' --accountId $NFT_CONTRACT_ID
+near call $NFT_CONTRACT_ID new_default_meta '{"owner_id": "'$NFT_CONTRACT_ID'","treasury_id": "'$MAIN_ACCOUNT'", "max_supply": "20", 
+"base_uri": "'$BASE_URI'", "mint_price": "10000000000000000000000000","mint_start": "1671660800000000000", "mint_end": "1690000000000000000", "perpetual_royalties": {"'$MAIN_ACCOUNT'": 100}}' --accountId $NFT_CONTRACT_ID
 near view $NFT_CONTRACT_ID nft_metadata
-near call $NFT_CONTRACT_ID nft_mint '{"receiver_id": "'$MAIN_ACCOUNT'"}' --accountId $MAIN_ACCOUNT --amount 5.1
+near call $NFT_CONTRACT_ID nft_mint '{"receiver_id": "'$MAIN_ACCOUNT'"}' --accountId $MAIN_ACCOUNT --amount 10.1
 near view $NFT_CONTRACT_ID nft_token '{"token_id": "0"}'
 ```
 
@@ -79,7 +79,7 @@ near call $NFT_CONTRACT_ID nft_transfer '{"receiver_id": "$MAIN_ACCOUNT_2", "tok
 ```bash=
 echo $NFT_CONTRACT_ID
 echo $BASE_URI
-near call $NFT_CONTRACT_ID set_meta '{"name": "A-Runner", "base_uri": "'$BASE_URI'", "icon": ""}' --accountId $NFT_CONTRACT_ID --depositYocto 1
+near call $NFT_CONTRACT_ID set_meta '{"name": "Chubby Runners", "base_uri": "'$BASE_URI'", "icon": "", "max_supply": "100"}' --accountId $NFT_CONTRACT_ID --depositYocto 1
 near view $NFT_CONTRACT_ID nft_metadata
 ```
 

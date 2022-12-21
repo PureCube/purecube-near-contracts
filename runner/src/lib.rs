@@ -98,7 +98,7 @@ impl Contract {
             owner_id,
             NFTContractMetadata {
                 spec: format!("nft-{}", NFT_METADATA_SPEC).to_string(),
-                name: "A-Runner".to_string(),
+                name: "Chubby Runners".to_string(),
                 symbol: "RUNNER".to_string(),
                 icon: Some(DATA_IMAGE_SVG_ICON.to_string()),
                 base_uri: Some(base_uri.to_string()),
@@ -173,6 +173,7 @@ impl Contract {
         name: String,
         base_uri: String,
         icon: Option<String>,
+        max_supply: U128,
     ) {
         assert_eq!(
               &env::predecessor_account_id(),
@@ -180,13 +181,11 @@ impl Contract {
               "Predecessor must be contract owner."
         );
         assert!(
-            icon.as_ref().map(|b| b.len() <= 100).unwrap_or(true),
-            "Icon URI must be less then 100 chars"
-        );
-        assert!(
             base_uri.len() <= 100,
             "Base URI must be less then 100 chars"
         );
+
+        self.max_supply = max_supply;
 
         self.metadata = LazyOption::new(
            StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
